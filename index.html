@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trái Tim Xanh Lấp Lánh &amp; Vũ Trụ Ngân Hà</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #03020c;
+      font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      color: #e2e8f0;
+      user-select: none;
+    }
+
+    canvas {
+      display: block;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Giao diện điều khiển nhỏ gọn, tinh tế */
+    .controls {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(10, 14, 38, 0.58);
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.14);
+      opacity: 0.78;
+      transition: opacity 0.3s ease, border-color 0.3s ease;
+      max-width: calc(100vw - 24px);
+    }
+
+    .controls:hover,
+    .controls:focus-within {
+      opacity: 1;
+      border-color: rgba(125, 211, 252, 0.55);
+    }
+
+    .controls input {
+      width: 190px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 999px;
+      padding: 6px 12px;
+      color: #f8fafc;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .controls input::placeholder {
+      color: rgba(203, 213, 225, 0.55);
+    }
+
+    .controls input:focus {
+      border-color: rgba(56, 189, 248, 0.7);
+      background: rgba(255, 255, 255, 0.11);
+    }
+
+    .controls button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #f0f9ff;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.78), rgba(147, 51, 234, 0.72));
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .controls button:hover {
+      filter: brightness(1.18);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+
+    .controls button:active {
+      transform: scale(0.96);
+    }
+
+    .controls button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    @media (max-width: 640px) {
+      .controls {
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 18px;
+        padding: 8px 10px;
+      }
+      .controls input {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    /* =========================================================
+       MÀN HÌNH CÁNH CỬA CHIA ĐÔI + 2 THIÊN THẦN + TRÁI TIM GIỮA
+       ========================================================= */
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1600px;
+      overflow: hidden;
+      background: #040512;
+      transition: opacity 1.1s ease 0.55s, visibility 1.1s ease 0.55s;
+    }
+
+    .gate-overlay.open {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .gate-door {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(180deg, #0b102a 0%, #101536 50%, #080a1c 100%);
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.45);
+      transition: transform 1.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .gate-door.left {
+      left: 0;
+      transform-origin: left center;
+      border-right: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .gate-door.right {
+      right: 0;
+      transform-origin: right center;
+      border-left: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .gate-overlay.open .gate-door.left {
+      transform: rotateY(-108deg) translateX(-18%);
+    }
+
+    .gate-overlay.open .gate-door.right {
+      transform: rotateY(108deg) translateX(18%);
+    }
+
+    .gate-center-stage {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 2.5vw, 34px);
+      padding: 0 12px;
+      transition: transform 0.65s ease, opacity 0.55s ease;
+    }
+
+    .gate-overlay.open .gate-center-stage {
+      transform: scale(1.12);
+      opacity: 0;
+    }
+
+    .cupid-wrap {
+      width: clamp(115px, 20vw, 240px);
+      flex-shrink: 0;
+      animation: cupidFloat 3.2s ease-in-out infinite;
+    }
+
+    .cupid-wrap.right {
+      animation-delay: -1.6s;
+    }
+
+    .cupid-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 8px 22px rgba(244, 114, 182, 0.32)) drop-shadow(0 0 18px rgba(147, 197, 253, 0.25));
+      pointer-events: none;
+    }
+
+    .cupid-wrap.right .cupid-img {
+      transform: scaleX(-1);
+    }
+
+    @keyframes cupidFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .heart-gate-btn {
+      position: relative;
+      width: clamp(132px, 19vw, 184px);
+      height: clamp(122px, 17.5vw, 170px);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      flex-shrink: 0;
+      animation: gateHeartBeat 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px rgba(244, 114, 182, 0.85)) drop-shadow(0 0 52px rgba(236, 72, 153, 0.55));
+      transition: filter 0.25s ease, transform 0.2s ease;
+    }
+
+    .heart-gate-btn:hover {
+      filter: drop-shadow(0 0 34px rgba(249, 168, 212, 0.98)) drop-shadow(0 0 68px rgba(236, 72, 153, 0.85));
+      transform: scale(1.08);
+    }
+
+    .heart-gate-btn:active {
+      transform: scale(0.95);
+    }
+
+    .heart-pink-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      display: block;
+    }
+
+    .heart-gate-label {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      color: #fce7f3;
+      text-shadow: 0 0 12px rgba(244, 114, 182, 0.85);
+      pointer-events: none;
+    }
+
+    @keyframes gateHeartBeat {
+      0%, 100% { transform: scale(1); }
+      18% { transform: scale(1.08); }
+      32% { transform: scale(1); }
+      46% { transform: scale(1.05); }
+      62% { transform: scale(1); }
+    }
+
+    /* =========================================================
+       VÒNG CUỘN CÂU CHÚC THEO MẢNH VỤN XANH & HỘP ĐỌC LỜI CHÚC
+       ========================================================= */
+    .wish-orbit-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .wish-ring-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .wish-curved-item {
+      pointer-events: auto;
+      cursor: pointer;
+      font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+      font-weight: 700;
+      fill: #0284c7; /* Màu xanh đậm da trời */
+      stroke: rgba(224, 242, 254, 0.94);
+      stroke-width: 2.5px;
+      paint-order: stroke fill;
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.72));
+      transition: fill 0.2s ease;
+    }
+
+    .wish-curved-item:hover {
+      fill: #0369a1;
+      stroke: #ffffff;
+      filter: drop-shadow(0 0 14px rgba(186, 230, 253, 0.98));
+    }
+
+    .wish-reader-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(2, 6, 23, 0.68);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .wish-reader-modal.open {
+      display: flex;
+    }
+
+    .wish-reader-card {
+      width: min(520px, 100%);
+      max-height: 74vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: 20px;
+      background: linear-gradient(165deg, rgba(240, 249, 255, 0.97), rgba(224, 242, 254, 0.95));
+      border: 1.5px solid rgba(56, 189, 248, 0.65);
+      box-shadow: 0 20px 50px rgba(2, 132, 199, 0.45);
+      color: #0369a1;
+      overflow: hidden;
+    }
+
+    .wish-reader-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(186, 230, 253, 0.45);
+    }
+
+    .wish-reader-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #075985;
+    }
+
+    .wish-reader-close {
+      border: none;
+      background: rgba(3, 105, 161, 0.12);
+      color: #075985;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .wish-reader-close:hover {
+      background: rgba(3, 105, 161, 0.22);
+    }
+
+    .wish-reader-list {
+      padding: 14px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #0284c7 rgba(186, 230, 253, 0.5);
+    }
+
+    .wish-reader-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #0369a1;
+      font-size: 14.5px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .wish-reader-item.active {
+      background: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.22);
+      color: #0c4a6e;
+    }
+
+    /* =========================================================
+       HỘP THOẠI NHẬT KÝ ẢNH KHI CLICK VÀO QUẢ CẦU
+       ========================================================= */
+    .photo-diary-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .photo-diary-modal.open {
+      display: flex;
+    }
+
+    .photo-diary-card {
+      width: min(680px, 100%);
+      max-height: 84vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: 22px;
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.94));
+      border: 1.5px solid rgba(125, 211, 252, 0.45);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 36px rgba(56, 189, 248, 0.25);
+      color: #e0f2fe;
+      overflow: hidden;
+    }
+
+    .photo-diary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.22);
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .photo-diary-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #bae6fd;
+    }
+
+    .photo-diary-close {
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .photo-diary-body {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .photo-diary-viewer {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.55);
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 240px;
+    }
+
+    .photo-diary-viewer img {
+      max-width: 100%;
+      max-height: 44vh;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .photo-diary-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #e0f2fe;
+      font-size: 18px;
+      cursor: pointer;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+    }
+
+    .photo-diary-nav.prev { left: 10px; }
+    .photo-diary-nav.next { right: 10px; }
+
+    .photo-diary-caption {
+      text-align: center;
+      font-size: 13.5px;
+      color: #cbd5e1;
+    }
+
+    .photo-diary-thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+      gap: 8px;
+    }
+
+    .photo-diary-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.7;
+      transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .photo-diary-thumb.active,
+    .photo-diary-thumb:hover {
+      opacity: 1;
+      border-color: #38bdf8;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <!-- Cánh cửa chia đôi màn hình không hoa văn -->
+  <div id="gateOverlay" class="gate-overlay" role="dialog" aria-label="Cánh cửa mở vào điều bất ngờ">
+    <div class="gate-door left"></div>
+    <div class="gate-door right"></div>
+
+    <!-- 2 thiên thần quay về trung tâm trái tim ở giữa -->
+    <div class="gate-center-stage">
+      <div class="cupid-wrap left">
+        <img class="cupid-img" src="image/cupid.png" alt="Thiên thần bên trái" />
+      </div>
+
+      <button id="openGateBtn" class="heart-gate-btn" type="button" aria-label="Nhấn vào trái tim để mở trang giao diện chính">
+        <svg class="heart-pink-svg" viewBox="0 0 140 128" aria-hidden="true">
+          <defs>
+            <radialGradient id="brightPinkHeartGrad" cx="38%" cy="30%" r="68%">
+              <stop offset="0%" stop-color="#ffffff" />
+              <stop offset="22%" stop-color="#fbcfe8" />
+              <stop offset="56%" stop-color="#f472b6" />
+              <stop offset="86%" stop-color="#ec4899" />
+              <stop offset="100%" stop-color="#db2777" />
+            </radialGradient>
+            <linearGradient id="pinkGlossGrad" x1="0" y1="0" x2="0.8" y2="1">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.85)" />
+              <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M70,116 C70,116 14,80 14,42 C14,21 31,8 49,8 C60,8 66,15 70,22 C74,15 80,8 91,8 C109,8 126,21 126,42 C126,80 70,116 70,116 Z"
+            fill="url(#brightPinkHeartGrad)"
+            stroke="#fdf2f8"
+            stroke-width="2.6"
+          />
+          <!-- Ánh bóng gương mềm mại -->
+          <path
+            d="M36,24 C27,28 24,38 27,48 C30,40 36,33 46,29 C50,27 44,21 36,24 Z"
+            fill="url(#pinkGlossGrad)"
+          />
+          <!-- Tia sao lấp lánh trên trái tim hồng -->
+          <path d="M98,24 L100,30 L106,32 L100,34 L98,40 L96,34 L90,32 L96,30 Z" fill="#ffffff" opacity="0.92" />
+          <path d="M26,70 L27.5,74 L31.5,75.5 L27.5,77 L26,81 L24.5,77 L20.5,75.5 L24.5,74 Z" fill="#fce7f3" opacity="0.85" />
+        </svg>
+        <span class="heart-gate-label">Chạm để mở</span>
+      </button>
+
+      <div class="cupid-wrap right">
+        <img class="cupid-img" src="image/cupid.png" alt="Thiên thần bên phải" />
+      </div>
+    </div>
+  </div>
+
+  <canvas id="scene"></canvas>
+
+  <!-- Các vòng cuộn câu chúc đứng yên đồng tâm, chữ uốn cong tự cuộn xen kẽ chiều -->
+  <div id="wishOrbitLayer" class="wish-orbit-layer" aria-label="Vòng cuộn lời chúc">
+    <svg id="wishRingSvg" class="wish-ring-svg">
+      <defs id="wishRingDefs"></defs>
+      <g id="wishCurvedGroup"></g>
+    </svg>
+  </div>
+
+  <!-- Hộp thoại thanh cuộn đọc toàn bộ câu chúc -->
+  <div id="wishReaderModal" class="wish-reader-modal" role="dialog" aria-modal="true" aria-label="Danh sách lời chúc">
+    <div class="wish-reader-card">
+      <div class="wish-reader-header">
+        <h2>Lời chúc 19/11 dành tặng anh</h2>
+        <button id="closeWishModalBtn" class="wish-reader-close" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div id="wishReaderList" class="wish-reader-list"></div>
+    </div>
+  </div>
+
+  <!-- Hộp thoại Nhật ký ảnh khi click vào quả cầu ảnh -->
+  <div id="photoDiaryModal" class="photo-diary-modal" role="dialog" aria-modal="true" aria-label="Nhật ký ảnh">
+    <div class="photo-diary-card">
+      <div class="photo-diary-header">
+        <h2>Nhật ký ảnh kỷ niệm</h2>
+        <button id="closePhotoDiaryBtn" class="photo-diary-close" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div class="photo-diary-body">
+        <div class="photo-diary-viewer">
+          <button id="prevPhotoBtn" class="photo-diary-nav prev" type="button" aria-label="Ảnh trước">‹</button>
+          <img id="diaryMainImg" src="" alt="Ảnh kỷ niệm" />
+          <button id="nextPhotoBtn" class="photo-diary-nav next" type="button" aria-label="Ảnh tiếp theo">›</button>
+        </div>
+        <div id="diaryCaption" class="photo-diary-caption"></div>
+        <div id="diaryThumbs" class="photo-diary-thumbs"></div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop preload="auto"></audio>
+
+  <div class="controls" aria-label="Bảng điều khiển hiệu ứng">
+    <input id="wishInput" type="text" maxlength="60" placeholder="Nhập lời chúc của bạn..." />
+    <button id="addWishBtn" type="button">Gửi lời chúc</button>
+    <button id="toggleRainBtn" class="secondary" type="button">Ẩn cầu ảnh</button>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("scene");
+      const ctx = canvas.getContext("2d");
+
+      // Offscreen canvas lưu phông nền vũ trụ + dải ngân hà + cầu vồng chân trời để chạy 60fps mượt
+      const bgCanvas = document.createElement("canvas");
+      const bgCtx = bgCanvas.getContext("2d");
+
+      const gateOverlay = document.getElementById("gateOverlay");
+      const openGateBtn = document.getElementById("openGateBtn");
+      const bgMusic = document.getElementById("bgMusic");
+      const wishInput = document.getElementById("wishInput");
+      const addWishBtn = document.getElementById("addWishBtn");
+      const toggleRainBtn = document.getElementById("toggleRainBtn");
+      const wishOrbitLayer = document.getElementById("wishOrbitLayer");
+      const wishRingSvg = document.getElementById("wishRingSvg");
+      const wishRingDefs = document.getElementById("wishRingDefs");
+      const wishCurvedGroup = document.getElementById("wishCurvedGroup");
+      const wishReaderModal = document.getElementById("wishReaderModal");
+      const wishReaderList = document.getElementById("wishReaderList");
+      const closeWishModalBtn = document.getElementById("closeWishModalBtn");
+      const photoDiaryModal = document.getElementById("photoDiaryModal");
+      const closePhotoDiaryBtn = document.getElementById("closePhotoDiaryBtn");
+      const prevPhotoBtn = document.getElementById("prevPhotoBtn");
+      const nextPhotoBtn = document.getElementById("nextPhotoBtn");
+      const diaryMainImg = document.getElementById("diaryMainImg");
+      const diaryCaption = document.getElementById("diaryCaption");
+      const diaryThumbs = document.getElementById("diaryThumbs");
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      // Tạo texture thiên hà xoắn ốc (vẽ bằng code Canvas, không dán ảnh)
+      function createSpiralGalaxyTexture(size) {
+        const c = document.createElement("canvas");
+        c.width = size;
+        c.height = size;
+        const gctx = c.getContext("2d");
+        const mid = size * 0.5;
+        const maxR = size * 0.47;
+
+        gctx.save();
+        gctx.translate(mid, mid);
+        gctx.globalCompositeOperation = "lighter";
+
+        // Vầng sáng nền thiên hà
+        const outerGlow = gctx.createRadialGradient(0, 0, 2, 0, 0, maxR);
+        outerGlow.addColorStop(0, "rgba(255, 255, 255, 0.92)");
+        outerGlow.addColorStop(0.14, "rgba(251, 207, 232, 0.65)");
+        outerGlow.addColorStop(0.32, "rgba(192, 132, 252, 0.32)");
+        outerGlow.addColorStop(0.58, "rgba(56, 189, 248, 0.18)");
+        outerGlow.addColorStop(0.84, "rgba(37, 99, 235, 0.06)");
+        outerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+        gctx.fillStyle = outerGlow;
+        gctx.beginPath();
+        gctx.arc(0, 0, maxR, 0, Math.PI * 2);
+        gctx.fill();
+
+        // 2 nhánh tay xoắn ốc chính + tinh vân mây sao
+        const arms = 2;
+        const steps = 95;
+        for (let a = 0; a < arms; a++) {
+          const baseAng = (a / arms) * Math.PI * 2;
+          for (let s = 0; s < steps; s++) {
+            const t = s / steps; // 0 (lõi) -> 1 (rìa ngoài)
+            const r = Math.pow(t, 0.85) * maxR;
+            const ang = baseAng + t * Math.PI * 3.1;
+            const x = Math.cos(ang) * r;
+            const y = Math.sin(ang) * r;
+            const blobR = (10 + t * 24) * (size / 420);
+
+            let color;
+            if (t < 0.25) color = "rgba(253, 242, 248, 0.22)";
+            else if (t < 0.52) color = "rgba(244, 114, 182, 0.16)";
+            else if (t < 0.78) color = "rgba(168, 85, 247, 0.13)";
+            else color = "rgba(56, 189, 248, 0.12)";
+
+            const rg = gctx.createRadialGradient(x, y, 0, x, y, blobR);
+            rg.addColorStop(0, color);
+            rg.addColorStop(1, "rgba(0, 0, 0, 0)");
+            gctx.fillStyle = rg;
+            gctx.beginPath();
+            gctx.arc(x, y, blobR, 0, Math.PI * 2);
+            gctx.fill();
+          }
+        }
+
+        // Hạt bụi sao li ti rắc dọc theo các vòng xoắn ốc
+        const starColors = ["#ffffff", "#fbcfe8", "#e9d5ff", "#bae6fd", "#7dd3fc"];
+        for (let i = 0; i < 480; i++) {
+          const arm = i % arms;
+          const t = Math.pow(Math.random(), 0.75);
+          const r = t * maxR * 0.98;
+          const scatter = (Math.random() - 0.5) * (0.35 + t * 0.65);
+          const ang = (arm / arms) * Math.PI * 2 + t * Math.PI * 3.1 + scatter;
+          const sx = Math.cos(ang) * r;
+          const sy = Math.sin(ang) * r;
+          const sr = (0.45 + Math.random() * 1.25) * (size / 420);
+          gctx.globalAlpha = (1 - t * 0.55) * (0.35 + Math.random() * 0.65);
+          gctx.fillStyle = starColors[Math.floor(Math.random() * starColors.length)];
+          gctx.beginPath();
+          gctx.arc(sx, sy, sr, 0, Math.PI * 2);
+          gctx.fill();
+        }
+
+        // Lõi trung tâm sáng rực trắng hồng
+        gctx.globalAlpha = 1;
+        const core = gctx.createRadialGradient(0, 0, 0, 0, 0, maxR * 0.24);
+        core.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+        core.addColorStop(0.45, "rgba(253, 242, 248, 0.72)");
+        core.addColorStop(1, "rgba(244, 114, 182, 0)");
+        gctx.fillStyle = core;
+        gctx.beginPath();
+        gctx.arc(0, 0, maxR * 0.24, 0, Math.PI * 2);
+        gctx.fill();
+
+        gctx.restore();
+        return c;
+      }
+
+      const spiralGalaxyTex = createSpiralGalaxyTexture(420);
+      const spiralGalaxies = [
+        // 1 dải ngân hà xoắn ốc cỡ vừa (góc trên trái/giữa)
+        { rx: 0.30, ry: 0.17, sizeRatio: 0.42, tilt: -0.26, squash: 0.44, spinSpeed: 0.045, alpha: 0.78 },
+        // 1 dải ngân hà xoắn ốc cỡ nhỏ (góc dưới trái)
+        { rx: 0.19, ry: 0.77, sizeRatio: 0.24, tilt: 0.22, squash: 0.46, spinSpeed: -0.06, alpha: 0.72 }
+      ];
+
+      function drawSpiralGalaxies(elapsed) {
+        const base = Math.min(width, height);
+        spiralGalaxies.forEach((sg) => {
+          const gx = sg.rx * width;
+          const gy = sg.ry * height;
+          const drawSize = sg.sizeRatio * base;
+
+          ctx.save();
+          ctx.translate(gx, gy);
+          ctx.rotate(sg.tilt);
+          ctx.scale(1, sg.squash);
+          ctx.rotate(elapsed * sg.spinSpeed);
+          ctx.globalAlpha = sg.alpha;
+          ctx.globalCompositeOperation = "screen";
+          ctx.drawImage(spiralGalaxyTex, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+          ctx.restore();
+        });
+      }
+
+      function buildCosmicBackdrop() {
+        bgCanvas.width = Math.floor(width * dpr);
+        bgCanvas.height = Math.floor(height * dpr);
+        bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // 1. Nền vũ trụ sâu loang màu tím - xanh - đen
+        const baseGrad = bgCtx.createRadialGradient(
+          width * 0.5, height * 0.42, 20,
+          width * 0.5, height * 0.5, Math.max(width, height) * 0.85
+        );
+        baseGrad.addColorStop(0, "#131238");
+        baseGrad.addColorStop(0.35, "#0d0928");
+        baseGrad.addColorStop(0.7, "#060516");
+        baseGrad.addColorStop(1, "#020208");
+        bgCtx.fillStyle = baseGrad;
+        bgCtx.fillRect(0, 0, width, height);
+
+        // 2. Các mảng loang tinh vân & dải ngân hà đủ màu (tím, xanh ngọc, hồng, xanh dương, vàng cam nhẹ)
+        const nebulaBlobs = [
+          { x: 0.18, y: 0.24, r: 0.38, color: "rgba(168, 85, 247, 0.22)" },
+          { x: 0.82, y: 0.22, r: 0.36, color: "rgba(56, 189, 248, 0.20)" },
+          { x: 0.35, y: 0.62, r: 0.34, color: "rgba(236, 72, 153, 0.14)" },
+          { x: 0.68, y: 0.58, r: 0.38, color: "rgba(34, 211, 238, 0.15)" },
+          { x: 0.52, y: 0.30, r: 0.32, color: "rgba(139, 92, 246, 0.18)" },
+          { x: 0.14, y: 0.72, r: 0.30, color: "rgba(59, 130, 246, 0.16)" },
+          { x: 0.84, y: 0.76, r: 0.30, color: "rgba(245, 158, 11, 0.10)" }
+        ];
+
+        bgCtx.save();
+        bgCtx.globalCompositeOperation = "screen";
+        const minDim = Math.max(width, height);
+        nebulaBlobs.forEach((b) => {
+          const gx = b.x * width;
+          const gy = b.y * height;
+          const gr = b.r * minDim;
+          const g = bgCtx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+          g.addColorStop(0, b.color);
+          g.addColorStop(0.55, b.color.replace(/[\d.]+\)$/, "0.06)"));
+          g.addColorStop(1, "rgba(0, 0, 0, 0)");
+          bgCtx.fillStyle = g;
+          bgCtx.fillRect(0, 0, width, height);
+        });
+
+        // Dải ngân hà chéo bầu trời với nhiều hạt bụi sao li ti đủ màu
+        bgCtx.save();
+        bgCtx.translate(width * 0.5, height * 0.45);
+        bgCtx.rotate(-0.42);
+        const mwGrad = bgCtx.createLinearGradient(0, -height * 0.22, 0, height * 0.22);
+        mwGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+        mwGrad.addColorStop(0.25, "rgba(139, 92, 246, 0.08)");
+        mwGrad.addColorStop(0.5, "rgba(96, 165, 250, 0.14)");
+        mwGrad.addColorStop(0.75, "rgba(236, 72, 153, 0.08)");
+        mwGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        bgCtx.fillStyle = mwGrad;
+        bgCtx.fillRect(-width, -height * 0.25, width * 2, height * 0.5);
+
+        const dustColors = ["#ffffff", "#e9d5ff", "#bae6fd", "#fbcfe8", "#fde68a", "#a5f3fc"];
+        for (let i = 0; i < 420; i++) {
+          const dx = (Math.random() - 0.5) * width * 1.6;
+          const dy = (Math.random() - 0.5) * height * 0.34 * (0.4 + Math.random() * 0.8);
+          bgCtx.globalAlpha = Math.random() * 0.45 + 0.1;
+          bgCtx.fillStyle = dustColors[Math.floor(Math.random() * dustColors.length)];
+          bgCtx.beginPath();
+          bgCtx.arc(dx, dy, Math.random() * 1.4 + 0.3, 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+        bgCtx.restore();
+        bgCtx.restore();
+
+        // 3. Cầu vồng mờ mờ ở chân trời
+        bgCtx.save();
+        const rbCenterX = width * 0.5;
+        const rbRadius = Math.max(width * 0.72, height * 0.85);
+        const rbCenterY = height + rbRadius * 0.74;
+        const rainbowBands = [
+          "rgba(248, 113, 113, 0.09)", // đỏ
+          "rgba(251, 146, 60, 0.09)",  // cam
+          "rgba(250, 204, 21, 0.085)", // vàng
+          "rgba(74, 222, 128, 0.085)", // lục
+          "rgba(56, 189, 248, 0.10)",  // lam
+          "rgba(129, 140, 248, 0.10)", // chàm
+          "rgba(192, 132, 252, 0.095)" // tím
+        ];
+        bgCtx.filter = "blur(14px)";
+        rainbowBands.forEach((col, idx) => {
+          bgCtx.strokeStyle = col;
+          bgCtx.lineWidth = 14;
+          bgCtx.beginPath();
+          bgCtx.arc(rbCenterX, rbCenterY, rbRadius - idx * 12, Math.PI * 1.15, Math.PI * 1.85);
+          bgCtx.stroke();
+        });
+        bgCtx.restore();
+      }
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        buildCosmicBackdrop();
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      // =========================================================
+      // 0. NHẠC NỀN MP3 TRỰC TIẾP (Nhạc nền/My Love.mp3)
+      // =========================================================
+      bgMusic.src = encodeURI("Nhạc nền/My Love.mp3");
+      bgMusic.volume = 0.78;
+
+      async function tryAutoPlay() {
+        try {
+          if (bgMusic.paused) {
+            await bgMusic.play();
+          }
+        } catch (_err) {
+          // Sẽ phát ngay khi người xem click vào nút trái tim hoặc bất kỳ đâu trên trang
+        }
+      }
+
+      const unlockEvents = ["pointerdown", "click", "keydown", "touchstart"];
+      function handleFirstInteraction() {
+        if (bgMusic.paused) {
+          tryAutoPlay();
+        }
+      }
+      unlockEvents.forEach((evt) => {
+        window.addEventListener(evt, handleFirstInteraction, { passive: true });
+      });
+
+      // =========================================================
+      // 1. CÁC HÀNH TINH TO & NHỎ MÀU LOANG NGÂN HÀ + TÀU VŨ TRỤ
+      // =========================================================
+      const planets = [
+        // Hành tinh lớn có vành đai (góc trên phải) - màu loang ngân hà tím, hồng, xanh dương, ngọc
+        {
+          rx: 0.84, ry: 0.20, sizeRatio: 0.058,
+          base: "#1e1b4b",
+          swirls: [
+            { ox: -0.35, oy: -0.3, r: 0.9, c: "rgba(192, 132, 252, 0.88)" },
+            { ox: 0.32, oy: -0.1, r: 0.8, c: "rgba(56, 189, 248, 0.82)" },
+            { ox: -0.1, oy: 0.38, r: 0.85, c: "rgba(244, 114, 182, 0.72)" },
+            { ox: 0.28, oy: 0.35, r: 0.65, c: "rgba(129, 140, 248, 0.75)" },
+            { ox: -0.15, oy: -0.05, r: 0.55, c: "rgba(253, 224, 71, 0.28)" }
+          ],
+          glow: "rgba(168, 85, 247, 0.42)",
+          hasRing: true, ringAngle: -0.35, ringColor: "rgba(196, 181, 253, 0.48)",
+          floatAmp: 6, floatSpeed: 0.45, phase: 0.4
+        },
+        // Hành tinh vừa màu loang ngân hà xanh ngọc - tím - hồng (góc trên trái)
+        {
+          rx: 0.14, ry: 0.25, sizeRatio: 0.038,
+          base: "#0f172a",
+          swirls: [
+            { ox: -0.32, oy: -0.28, r: 0.85, c: "rgba(34, 211, 238, 0.9)" },
+            { ox: 0.3, oy: 0.12, r: 0.8, c: "rgba(168, 85, 247, 0.8)" },
+            { ox: -0.1, oy: 0.35, r: 0.75, c: "rgba(59, 130, 246, 0.85)" },
+            { ox: 0.15, oy: -0.35, r: 0.6, c: "rgba(244, 114, 182, 0.52)" }
+          ],
+          glow: "rgba(56, 189, 248, 0.38)",
+          hasRing: false,
+          floatAmp: 5, floatSpeed: 0.55, phase: 1.9
+        },
+        // Hành tinh nhỏ loang ngân hà hồng - tím - vàng ánh kim (phía dưới trái)
+        {
+          rx: 0.11, ry: 0.72, sizeRatio: 0.021,
+          base: "#1e1b4b",
+          swirls: [
+            { ox: -0.3, oy: -0.3, r: 0.85, c: "rgba(244, 114, 182, 0.88)" },
+            { ox: 0.28, oy: 0.2, r: 0.8, c: "rgba(139, 92, 246, 0.85)" },
+            { ox: 0.05, oy: -0.25, r: 0.65, c: "rgba(251, 191, 36, 0.42)" },
+            { ox: -0.2, oy: 0.35, r: 0.7, c: "rgba(56, 189, 248, 0.65)" }
+          ],
+          glow: "rgba(244, 114, 182, 0.35)",
+          hasRing: false,
+          floatAmp: 4, floatSpeed: 0.65, phase: 3.1
+        },
+        // Hành tinh nhỏ loang ngân hà xanh lam - tím - ngọc có vành mảnh (phía dưới phải)
+        {
+          rx: 0.89, ry: 0.68, sizeRatio: 0.024,
+          base: "#090d24",
+          swirls: [
+            { ox: -0.28, oy: -0.28, r: 0.85, c: "rgba(96, 165, 250, 0.9)" },
+            { ox: 0.3, oy: 0.15, r: 0.8, c: "rgba(192, 132, 252, 0.82)" },
+            { ox: -0.1, oy: 0.35, r: 0.75, c: "rgba(45, 212, 191, 0.72)" }
+          ],
+          glow: "rgba(96, 165, 250, 0.35)",
+          hasRing: true, ringAngle: 0.28, ringColor: "rgba(216, 180, 254, 0.45)",
+          floatAmp: 4, floatSpeed: 0.6, phase: 4.5
+        }
+      ];
+
+      function drawPlanets(elapsed) {
+        const base = Math.min(width, height);
+        planets.forEach((pl) => {
+          const px = pl.rx * width;
+          const py = pl.ry * height + Math.sin(elapsed * pl.floatSpeed + pl.phase) * pl.floatAmp;
+          const r = Math.max(13, pl.sizeRatio * base);
+
+          ctx.save();
+          // Vành sau của hành tinh (nếu có)
+          if (pl.hasRing) {
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(pl.ringAngle);
+            ctx.strokeStyle = pl.ringColor;
+            ctx.lineWidth = Math.max(2, r * 0.14);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, r * 1.95, r * 0.52, 0, Math.PI, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Quầng sáng khí quyển ngoài
+          ctx.shadowColor = pl.glow;
+          ctx.shadowBlur = r * 0.95;
+          ctx.fillStyle = pl.base;
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Clip bên trong hành tinh để vẽ các dải màu loang ngân hà
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.clip();
+
+          ctx.globalCompositeOperation = "screen";
+          pl.swirls.forEach((sw) => {
+            const sx = px + sw.ox * r;
+            const sy = py + sw.oy * r;
+            const sr = sw.r * r;
+            const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+            sg.addColorStop(0, sw.c);
+            sg.addColorStop(0.55, sw.c.replace(/[\d.]+\)$/, "0.28)"));
+            sg.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = sg;
+            ctx.fillRect(px - r, py - r, r * 2, r * 2);
+          });
+
+          // Lớp đổ bóng tạo khối cầu 3D tự nhiên
+          ctx.globalCompositeOperation = "source-over";
+          const shade = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.15, px + r * 0.18, py + r * 0.18, r * 1.15);
+          shade.addColorStop(0, "rgba(255, 255, 255, 0.16)");
+          shade.addColorStop(0.55, "rgba(15, 23, 42, 0.18)");
+          shade.addColorStop(1, "rgba(2, 6, 23, 0.78)");
+          ctx.fillStyle = shade;
+          ctx.fillRect(px - r, py - r, r * 2, r * 2);
+          ctx.restore();
+
+          // Viền khí quyển mỏng phát sáng
+          ctx.strokeStyle = pl.glow;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Vành trước của hành tinh (nếu có)
+          if (pl.hasRing) {
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(pl.ringAngle);
+            ctx.strokeStyle = pl.ringColor;
+            ctx.lineWidth = Math.max(2, r * 0.14);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, r * 1.95, r * 0.52, 0, 0, Math.PI);
+            ctx.stroke();
+            ctx.restore();
+          }
+          ctx.restore();
+        });
+      }
+
+      // Tàu vũ trụ bay nhẹ nhàng trong nền
+      const spaceships = [
+        { x: -80, yRatio: 0.16, speed: 34, scale: 1.0, dir: 1, wobblePhase: 0.5 },
+        { x: width + 90, yRatio: 0.80, speed: 26, scale: 0.75, dir: -1, wobblePhase: 2.3 }
+      ];
+
+      function drawSpaceships(dt, elapsed) {
+        spaceships.forEach((ship) => {
+          ship.x += ship.speed * ship.dir * dt;
+          if (ship.dir === 1 && ship.x > width + 110) ship.x = -110;
+          if (ship.dir === -1 && ship.x < -110) ship.x = width + 110;
+
+          const sy = ship.yRatio * height + Math.sin(elapsed * 1.2 + ship.wobblePhase) * 10;
+
+          ctx.save();
+          ctx.translate(ship.x, sy);
+          ctx.scale(ship.dir * ship.scale, ship.scale);
+
+          // Vệt lửa động cơ ion xanh - tím
+          const thrustGrad = ctx.createLinearGradient(-34, 0, -10, 0);
+          thrustGrad.addColorStop(0, "rgba(56, 189, 248, 0)");
+          thrustGrad.addColorStop(0.6, "rgba(56, 189, 248, 0.55)");
+          thrustGrad.addColorStop(1, "rgba(224, 242, 254, 0.95)");
+          ctx.fillStyle = thrustGrad;
+          ctx.beginPath();
+          ctx.moveTo(-10, -3.5);
+          ctx.lineTo(-32 - Math.sin(elapsed * 20) * 4, 0);
+          ctx.lineTo(-10, 3.5);
+          ctx.closePath();
+          ctx.fill();
+
+          // Thân tàu vũ trụ
+          ctx.shadowColor = "rgba(125, 211, 252, 0.65)";
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = "#cbd5e1";
+          ctx.beginPath();
+          ctx.moveTo(20, 0);
+          ctx.quadraticCurveTo(6, -8, -12, -6);
+          ctx.lineTo(-15, 0);
+          ctx.lineTo(-12, 6);
+          ctx.quadraticCurveTo(6, 8, 20, 0);
+          ctx.fill();
+
+          // Cánh tàu
+          ctx.fillStyle = "#64748b";
+          ctx.beginPath();
+          ctx.moveTo(-4, -5);
+          ctx.lineTo(-14, -13);
+          ctx.lineTo(-11, -4);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(-4, 5);
+          ctx.lineTo(-14, 13);
+          ctx.lineTo(-11, 4);
+          ctx.closePath();
+          ctx.fill();
+
+          // Kính buồng lái phát sáng xanh ngọc
+          ctx.fillStyle = "#38bdf8";
+          ctx.beginPath();
+          ctx.ellipse(5, 0, 5.5, 2.6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        });
+      }
+
+      // =========================================================
+      // 2. ÁNH SAO LẤP LÁNH (THÊM NHIỀU SAO BÉ BÉ HƠN XÍU) MÀU TRẮNG & TÍM
+      // =========================================================
+      const stars = [];
+      const STAR_COUNT = 540;
+
+      function createStar() {
+        const isPurple = Math.random() < 0.44;
+        const isLarge = Math.random() < 0.08;
+        const palette = isPurple
+          ? ["#f3e8ff", "#d8b4fe", "#c084fc", "#a855f7"]
+          : ["#ffffff", "#f8fafc", "#e0f2fe", "#dbeafe"];
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: isLarge ? Math.random() * 1.7 + 1.5 : Math.random() * 0.9 + 0.35,
+          color: palette[Math.floor(Math.random() * palette.length)],
+          baseAlpha: isLarge ? 0.85 : Math.random() * 0.55 + 0.3,
+          twinkleSpeed: Math.random() * 2.6 + 0.9,
+          phase: Math.random() * Math.PI * 2,
+          driftX: (Math.random() - 0.5) * 4,
+          driftY: (Math.random() - 0.5) * 4,
+          hasCross: isLarge || Math.random() < 0.1
+        };
+      }
+
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push(createStar());
+      }
+
+      // =========================================================
+      // 2b. PHÁO HOA NHIỀU MÀU Ở PHÔNG NỀN (TRÁNH VÙNG TRÁI TIM, 2-3 QUẢ/GIÂY)
+      // =========================================================
+      const fireworks = [];
+      const MAX_FIREWORKS = 6;
+      let nextFireworkTimer = 0.25;
+      let fireworkSideToggle = 0;
+
+      const fireworkPalettes = [
+        ["#fde047", "#fb923c", "#f472b6", "#ffffff"],
+        ["#22d3ee", "#38bdf8", "#c084fc", "#e0f2fe"],
+        ["#f472b6", "#c084fc", "#fde047", "#fb7185"],
+        ["#4ade80", "#22d3ee", "#fde047", "#ffffff"]
+      ];
+
+      function spawnBackgroundFirework() {
+        if (fireworks.length >= MAX_FIREWORKS) return;
+        // Chọn vị trí bên trái hoặc bên phải để tuyệt đối tránh chèn lên trái tim ở giữa
+        const side = fireworkSideToggle % 3;
+        fireworkSideToggle++;
+
+        let targetX, targetY;
+        if (side === 0) {
+          targetX = width * (0.10 + Math.random() * 0.13);
+          targetY = height * (0.16 + Math.random() * 0.24);
+        } else if (side === 1) {
+          targetX = width * (0.77 + Math.random() * 0.13);
+          targetY = height * (0.16 + Math.random() * 0.24);
+        } else {
+          // Quả thứ 3 chọn góc cao bên trái hoặc phải
+          const leftSide = Math.random() < 0.5;
+          targetX = leftSide
+            ? width * (0.14 + Math.random() * 0.11)
+            : width * (0.75 + Math.random() * 0.11);
+          targetY = height * (0.12 + Math.random() * 0.16);
+        }
+
+        const startX = targetX + (Math.random() - 0.5) * 40;
+        const startY = height * 0.92;
+        const palette = fireworkPalettes[Math.floor(Math.random() * fireworkPalettes.length)];
+
+        fireworks.push({
+          phase: "launch",
+          x: startX,
+          y: startY,
+          prevX: startX,
+          prevY: startY,
+          targetX,
+          targetY,
+          speed: 780 + Math.random() * 190,
+          flashAlpha: 1,
+          palette,
+          sparks: []
+        });
+      }
+
+      function explodeFirework(fw) {
+        fw.phase = "explode";
+        fw.flashAlpha = 1;
+        const maxBurstSpeed = Math.min(220, width * 0.21);
+        const outerCount = 100;
+
+        for (let i = 0; i < outerCount; i++) {
+          const ang = (i / outerCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.1;
+          const spd = maxBurstSpeed * (0.52 + Math.random() * 0.56);
+          fw.sparks.push({
+            x: fw.x,
+            y: fw.y,
+            prevX: fw.x,
+            prevY: fw.y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            color: fw.palette[i % fw.palette.length],
+            life: 0,
+            maxLife: 1.45 + Math.random() * 0.55,
+            size: 2.1 + Math.random() * 1.7,
+            twinklePhase: Math.random() * Math.PI * 2
+          });
+        }
+
+        // Vòng tâm sáng rực rỡ bên trong
+        const innerCount = 36;
+        for (let i = 0; i < innerCount; i++) {
+          const ang = (i / innerCount) * Math.PI * 2 + Math.random() * 0.2;
+          const spd = maxBurstSpeed * (0.22 + Math.random() * 0.26);
+          fw.sparks.push({
+            x: fw.x,
+            y: fw.y,
+            prevX: fw.x,
+            prevY: fw.y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            color: "#ffffff",
+            life: 0,
+            maxLife: 1.05 + Math.random() * 0.35,
+            size: 1.7 + Math.random() * 1.2,
+            twinklePhase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      function drawBackgroundFireworks(dt, elapsed) {
+        nextFireworkTimer -= dt;
+        if (nextFireworkTimer <= 0 && fireworks.length < MAX_FIREWORKS) {
+          spawnBackgroundFirework();
+          nextFireworkTimer = 0.34 + Math.random() * 0.18;
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+          const fw = fireworks[i];
+
+          if (fw.phase === "launch") {
+            fw.prevX = fw.x;
+            fw.prevY = fw.y;
+            const dx = fw.targetX - fw.x;
+            const dy = fw.targetY - fw.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            const step = fw.speed * dt;
+
+            if (dist <= step + 8) {
+              fw.x = fw.targetX;
+              fw.y = fw.targetY;
+              explodeFirework(fw);
+            } else {
+              fw.x += (dx / dist) * step;
+              fw.y += (dy / dist) * step;
+
+              ctx.strokeStyle = "rgba(253, 224, 71, 0.85)";
+              ctx.lineWidth = 2.2;
+              ctx.lineCap = "round";
+              ctx.beginPath();
+              ctx.moveTo(fw.prevX, fw.prevY);
+              ctx.lineTo(fw.x, fw.y);
+              ctx.stroke();
+
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(fw.x, fw.y, 2.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else {
+            // Vầng chớp sáng rực khi pháo hoa vừa bung nổ
+            if (fw.flashAlpha > 0.01) {
+              fw.flashAlpha = Math.max(0, fw.flashAlpha - dt * 2.8);
+              const flashR = 85;
+              const fg = ctx.createRadialGradient(fw.x, fw.y, 0, fw.x, fw.y, flashR);
+              fg.addColorStop(0, `rgba(255, 255, 255, ${0.55 * fw.flashAlpha})`);
+              fg.addColorStop(0.4, `rgba(253, 224, 71, ${0.28 * fw.flashAlpha})`);
+              fg.addColorStop(1, "rgba(0, 0, 0, 0)");
+              ctx.globalAlpha = 1;
+              ctx.fillStyle = fg;
+              ctx.beginPath();
+              ctx.arc(fw.x, fw.y, flashR, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            let aliveCount = 0;
+            const drag = Math.pow(0.18, dt);
+
+            for (let j = 0; j < fw.sparks.length; j++) {
+              const sp = fw.sparks[j];
+              sp.life += dt;
+              if (sp.life >= sp.maxLife) continue;
+              aliveCount++;
+
+              sp.prevX = sp.x;
+              sp.prevY = sp.y;
+              sp.vx *= drag;
+              sp.vy = sp.vy * drag + 36 * dt;
+              sp.x += sp.vx * dt;
+              sp.y += sp.vy * dt;
+
+              const progress = sp.life / sp.maxLife;
+              const fade = progress < 0.15 ? progress / 0.15 : 1 - (progress - 0.15) / 0.85;
+              const sparkle = 0.65 + 0.35 * Math.sin(elapsed * 18 + sp.twinklePhase);
+
+              ctx.globalAlpha = Math.max(0, fade * sparkle);
+              ctx.strokeStyle = sp.color;
+              ctx.lineWidth = sp.size;
+              ctx.lineCap = "round";
+              ctx.beginPath();
+              ctx.moveTo(sp.prevX, sp.prevY);
+              ctx.lineTo(sp.x, sp.y);
+              ctx.stroke();
+
+              ctx.fillStyle = sp.color;
+              ctx.beginPath();
+              ctx.arc(sp.x, sp.y, sp.size * 0.85, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            if (aliveCount === 0) {
+              fireworks.splice(i, 1);
+            }
+          }
+        }
+
+        ctx.restore();
+      }
+
+      // =========================================================
+      // 3. SAO BĂNG MÀU TRẮNG VỤT QUA TRÊN BẦU TRỜI
+      // =========================================================
+      const shootingStars = [];
+      let nextShootingStarTime = 1.0;
+
+      function spawnShootingStar() {
+        const fromLeft = Math.random() < 0.65;
+        const startX = fromLeft
+          ? Math.random() * width * 0.75
+          : width * (0.25 + Math.random() * 0.75);
+        const startY = Math.random() * height * 0.42;
+        const angle = fromLeft
+          ? Math.PI * (0.14 + Math.random() * 0.12)
+          : Math.PI * (0.74 + Math.random() * 0.12);
+        const speed = 780 + Math.random() * 480;
+
+        shootingStars.push({
+          x: startX,
+          y: startY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          length: 140 + Math.random() * 115,
+          life: 0,
+          maxLife: 0.75 + Math.random() * 0.45,
+          thickness: 1.9 + Math.random() * 1.4
+        });
+      }
+
+      // =========================================================
+      // 4. SAO BĂNG MÀU XANH BAY XUNG QUANH VÒNG TRÒN HÌNH TRÁI TIM
+      // =========================================================
+      const orbitBlueMeteors = [];
+      const ORBIT_METEOR_COUNT = 10;
+
+      for (let i = 0; i < ORBIT_METEOR_COUNT; i++) {
+        orbitBlueMeteors.push({
+          angle: (i / ORBIT_METEOR_COUNT) * Math.PI * 2 + Math.random() * 0.35,
+          speed: (0.75 + Math.random() * 0.55) * (i % 2 === 0 ? 1 : -0.85),
+          radiusMul: 1.24 + (i % 3) * 0.12,
+          tiltX: (Math.random() - 0.5) * 0.55, // độ nghiêng quỹ đạo 3D
+          tiltZ: (Math.random() - 0.5) * 0.45,
+          tailLen: 0.42 + Math.random() * 0.25,
+          thickness: 2.0 + Math.random() * 1.4,
+          color: i % 2 === 0 ? "#38bdf8" : "#60a5fa"
+        });
+      }
+
+      function getOrbitPoint(m, ang, cx, cy, baseR) {
+        const r = baseR * m.radiusMul;
+        const lx = Math.cos(ang) * r;
+        const ly = Math.sin(ang) * r * 0.42; // elip bao quanh trái tim
+        const lz = Math.sin(ang) * r;
+
+        // Xoay nhẹ mặt phẳng quỹ đạo
+        const px = lx * Math.cos(m.tiltZ) - ly * Math.sin(m.tiltZ);
+        const py = lx * Math.sin(m.tiltZ) + ly * Math.cos(m.tiltZ) + lz * m.tiltX * 0.45;
+        return { x: cx + px, y: cy + py, z: lz };
+      }
+
+      function drawOrbitBlueMeteors(dt, cx, cy, heartScale) {
+        const baseR = heartScale * 1.22;
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+
+        orbitBlueMeteors.forEach((m) => {
+          m.angle += m.speed * dt;
+          const dir = m.speed >= 0 ? 1 : -1;
+          const steps = 14;
+
+          const head = getOrbitPoint(m, m.angle, cx, cy, baseR);
+          const depthAlpha = head.z < 0 ? 0.95 : 0.45;
+
+          // Vẽ đuôi sao băng xanh uốn theo cung tròn quanh trái tim
+          for (let s = 0; s < steps; s++) {
+            const t1 = s / steps;
+            const t2 = (s + 1) / steps;
+            const a1 = m.angle - dir * m.tailLen * t1;
+            const a2 = m.angle - dir * m.tailLen * t2;
+            const p1 = getOrbitPoint(m, a1, cx, cy, baseR);
+            const p2 = getOrbitPoint(m, a2, cx, cy, baseR);
+
+            ctx.strokeStyle = m.color;
+            ctx.globalAlpha = (1 - t1) * 0.78 * depthAlpha;
+            ctx.lineWidth = Math.max(0.5, m.thickness * (1 - t1 * 0.85));
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+
+          // Đầu sao băng xanh phát sáng rực
+          ctx.globalAlpha = depthAlpha;
+          ctx.shadowColor = "#38bdf8";
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = "#e0f2fe";
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, m.thickness * 1.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+
+        ctx.restore();
+      }
+
+      // =========================================================
+      // 5. TRÁI TIM ĐỎ ĐỐM SÁNG VIỀN DÀY + VÒNG NGÂN HÀ XANH + ĐỐM XANH DƯƠNG ĐẬM XOAY QUANH
+      // =========================================================
+      const heartParticles = [];
+      const blueDebrisPool = [];
+      const orbitDeepBlueDots = [];
+      const flowParticles = [];
+      const HEART_PARTICLE_COUNT = 10500;
+      const DEBRIS_POOL_COUNT = 5200;
+      const ORBIT_DEEP_BLUE_COUNT = 0;
+      const FLOW_PARTICLE_COUNT = 650;
+
+      function isInsideHeart3D(x, y, z) {
+        const x2 = x * x;
+        const y2 = y * y;
+        const z2 = z * z;
+        const z3 = z2 * z;
+        const a = x2 + (9 / 4) * y2 + z2 - 1;
+        return a * a * a - x2 * z3 - (9 / 80) * y2 * z3 <= 0;
+      }
+
+      const redDeepPalette = [
+        "#7f1d1d",
+        "#991b1b",
+        "#b91c1c",
+        "#dc2626"
+      ];
+
+      const redBrightPalette = [
+        "#dc2626",
+        "#ef4444",
+        "#ff2a4b",
+        "#f87171",
+        "#fca5a5"
+      ];
+
+      const blueDebrisPalette = [
+        "#0f2b7a",
+        "#1e3a8a",
+        "#1d4ed8",
+        "#0284c7",
+        "#0ea5e9",
+        "#22d3ee",
+        "#38bdf8",
+        "#7dd3fc"
+      ];
+
+      const deepBlueOrbitPalette = [
+        "#0a2463",
+        "#172554",
+        "#1e3a8a",
+        "#1d4ed8",
+        "#2563eb"
+      ];
+
+      function createHeartParticle(hx, hy, hz, isEdge) {
+        const isDeep = isEdge ? Math.random() < 0.22 : Math.random() < 0.42;
+        return {
+          x: hx,
+          y: hy,
+          z: hz,
+          isDeep,
+          size: isDeep
+            ? (isEdge ? Math.random() * 0.85 + 0.9 : Math.random() * 0.75 + 0.6)
+            : (isEdge ? Math.random() * 0.85 + 0.85 : Math.random() * 0.75 + 0.55),
+          color: isDeep
+            ? redDeepPalette[Math.floor(Math.random() * redDeepPalette.length)]
+            : redBrightPalette[Math.floor(Math.random() * redBrightPalette.length)],
+          sparkleSpeed: 2.8 + Math.random() * 4.8,
+          phase: Math.random() * Math.PI * 2,
+          isGlitter: !isDeep && Math.random() < 0.22
+        };
+      }
+
+      function generateHeartParticles() {
+        heartParticles.length = 0;
+
+        let attempts = 0;
+        while (heartParticles.length < HEART_PARTICLE_COUNT - 1500 && attempts < 450000) {
+          attempts++;
+          const x = (Math.random() * 2 - 1) * 1.3;
+          const y = (Math.random() * 2 - 1) * 0.85;
+          const z = (Math.random() * 2 - 1) * 1.3;
+
+          if (isInsideHeart3D(x, y, z)) {
+            const shellBias = Math.random() < 0.80
+              ? 0.90 + Math.random() * 0.12
+              : 0.42 + Math.random() * 0.52;
+            const px = x * shellBias;
+            const py = y * shellBias;
+            const pz = -z * shellBias;
+            heartParticles.push(createHeartParticle(px, pz, py, false));
+          }
+        }
+
+        // Tạo viền trái tim chi chít đốm đỏ li ti (2 lớp sát nhau) để không có khoảng trống thừa
+        for (let i = 0; i < 1000; i++) {
+          const t = (i / 1000) * Math.PI * 2;
+          const hx = 16 * Math.pow(Math.sin(t), 3);
+          const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+          const scale = 1 / 16.0;
+          heartParticles.push(
+            createHeartParticle(hx * scale, hy * scale - 0.12, (Math.random() - 0.5) * 0.16, true)
+          );
+        }
+        for (let i = 0; i < 500; i++) {
+          const t = (i / 500) * Math.PI * 2;
+          const hx = 16 * Math.pow(Math.sin(t), 3);
+          const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+          const scale = 1 / 16.8;
+          heartParticles.push(
+            createHeartParticle(hx * scale, hy * scale - 0.12, (Math.random() - 0.5) * 0.24, true)
+          );
+        }
+      }
+      generateHeartParticles();
+
+      // Vòng ngân hà mảnh vụn xanh li ti bên dưới: ở giữa có khoảng trống, loang dần ra ngoài theo dải xoắn ốc
+      for (let i = 0; i < DEBRIS_POOL_COUNT; i++) {
+        const arm = i % 3;
+        const rad = 0.48 + Math.pow(Math.random(), 0.72) * 1.68;
+        const ang = (arm * (Math.PI * 2)) / 3 + rad * 1.7 + (Math.random() - 0.5) * 1.1;
+        blueDebrisPool.push({
+          ang,
+          rad,
+          orbitSpeed: (0.24 + 0.36 / (0.4 + rad)) * (Math.random() < 0.08 ? -1 : 1),
+          size: Math.random() * 0.8 + 0.45,
+          color: blueDebrisPalette[Math.floor(Math.random() * blueDebrisPalette.length)],
+          phase: Math.random() * Math.PI * 2,
+          speed: 2.4 + Math.random() * 4.5
+        });
+      }
+
+      // Các đốm xanh dương đậm li ti chuyển động xoay quanh hình trái tim
+      for (let i = 0; i < ORBIT_DEEP_BLUE_COUNT; i++) {
+        orbitDeepBlueDots.push({
+          ang: Math.random() * Math.PI * 2,
+          radius: 1.15 + Math.random() * 0.55,
+          yOffset: (Math.random() - 0.5) * 1.35,
+          speed: (0.45 + Math.random() * 0.55) * (i % 2 === 0 ? 1 : -0.8),
+          tilt: (Math.random() - 0.5) * 0.35,
+          size: Math.random() * 0.85 + 0.75,
+          color: deepBlueOrbitPalette[Math.floor(Math.random() * deepBlueOrbitPalette.length)],
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      // Các đốm nhỏ ở vùng trong bay lên để lấp đầy hình trái tim (chuyển từ xanh -> trắng -> đỏ)
+      function initFlowParticle(p, randomProgress) {
+        p.mode = "rise";
+        p.progress = randomProgress ? Math.random() : 0;
+        p.speed = 0.30 + Math.random() * 0.38;
+        const ang = Math.random() * Math.PI * 2;
+        const rad = 0.32 + Math.random() * 0.44;
+        p.poolX = Math.cos(ang) * rad * 1.45;
+        p.poolY = Math.sin(ang) * rad * 0.20;
+        p.heartX = (Math.random() - 0.5) * 0.96;
+        p.heartY = 0.18 + Math.random() * 0.72;
+        p.swirlAmp = (Math.random() - 0.5) * 0.24;
+        p.size = Math.random() * 1.4 + 0.7;
+        p.phase = Math.random() * Math.PI * 2;
+      }
+
+      for (let i = 0; i < FLOW_PARTICLE_COUNT; i++) {
+        const p = {};
+        initFlowParticle(p, true);
+        flowParticles.push(p);
+      }
+
+      function lerpColorRGB(c1, c2, t) {
+        const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
+        const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
+        const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      function getHeartbeatScale(time) {
+        const cycle = 1.15;
+        const t = (time % cycle) / cycle;
+        const lub = Math.exp(-Math.pow((t - 0.12) / 0.045, 2)) * 0.12;
+        const dub = Math.exp(-Math.pow((t - 0.27) / 0.055, 2)) * 0.07;
+        return 1 + lub + dub;
+      }
+
+      // =========================================================
+      // 6. MƯA LỜI CHÚC & HÌNH ẢNH RƠI XEN KẼ
+      // =========================================================
+      const defaultWishes = [
+        "Nhân ngày 19/11, chúc cho mọi ước mơ mà anh đang ấp ủ sẽ sớm thành hiện thực. Hãy luôn rạng rỡ và vui vẻ nhé!",
+        "Hôm nay 19/11, chúc anh em luôn khỏe, túi tiền rủng rỉnh, công việc suôn sẻ và ít gặp deadline ạaaaa!",
+        "Hỡi chàng trai, hãy luôn tự tin tiến về phía trước nhé, vì phía sau luôn có em dõi theo. Chúc anh ngày 19/11 thật rực rỡ và ấm áp!",
+        "Mong hôm nay anh có một ngày vui thật trọn vẹn và thật hạnh phúc ạaaa",
+        "Chúc anh luôn vui vẻ, cười tươi và gặp nhiều niềm vui và may mắn trong công việc lẫn cuộc sống và nhớ để ý em tí nhaaaa!",
+        "Mong mọi điều tốt đẹp luôn đến với anh và cuộc sống luôn đối xử nhẹ nhàng với anh như cách anh luôn nhẹ nhàng với em dị đóo!"
+      ];
+
+      const imagePaths = [
+        "image/Ảnh.png",
+        "image/1794836475985_342144510275995299_1778936377038722476_5226d883986407ae466951e67b320812.jpg",
+        "image/1794836495603_342144510275995299_1778936377038722476_ad330a76d0ce8a21a3de3e51eaff90a9.jpg",
+        "image/1794836527482_342144510275995299_1778936377038722476_ab6d1c1c2e84364a011265ba2432cd01.jpg",
+        "image/1794836527628_342144510275995299_1778936377038722476_2098f0a0a3613cf3af59623f75b621f3.jpg",
+        "image/1794836598062_342144510275995299_1778936377038722476_90a76fb2e87591178e675e487cac4c6b.jpg",
+        "image/1794836598281_342144510275995299_1778936377038722476_55baf19dffc9b6481cdaa90811c5337c.jpg"
+      ];
+
+      const loadedImages = [];
+      imagePaths.forEach((rawPath) => {
+        const img = new Image();
+        img.src = encodeURI(rawPath);
+        img.onload = () => {
+          loadedImages.push(img);
+        };
+      });
+
+      const customWishes = [];
+      const allWishes = [...defaultWishes];
+      const wishChips = [];
+      let isOrbitHovered = false;
+      let wishOrbitAngle = 0;
+
+      function openWishReader(selectedIndex) {
+        wishReaderList.innerHTML = "";
+        allWishes.forEach((text, idx) => {
+          const itemEl = document.createElement("div");
+          itemEl.className = "wish-reader-item" + (idx === selectedIndex ? " active" : "");
+          itemEl.textContent = text;
+          wishReaderList.appendChild(itemEl);
+        });
+        wishReaderModal.classList.add("open");
+        const activeEl = wishReaderList.querySelector(".wish-reader-item.active");
+        if (activeEl) {
+          activeEl.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+      }
+
+      closeWishModalBtn.addEventListener("click", () => {
+        wishReaderModal.classList.remove("open");
+      });
+
+      wishReaderModal.addEventListener("click", (e) => {
+        if (e.target === wishReaderModal) {
+          wishReaderModal.classList.remove("open");
+        }
+      });
+
+      function updateConcentricRingPaths() {
+        const cx = width * 0.5;
+        const cy = height * 0.37;
+        const baseScale = Math.min(width, height) * 0.255;
+        const poolCenterY = cy + baseScale * 1.44;
+        const total = wishChips.length || 1;
+
+        const innerRx = Math.min(width * 0.22, baseScale * 0.85);
+        const outerRx = Math.min(width * 0.46, baseScale * 2.05);
+        const stepRx = total > 1 ? Math.max(24, (outerRx - innerRx) / (total - 1)) : 0;
+
+        const innerRy = Math.max(24, baseScale * 0.14);
+        const maxBottom = height - 68;
+        const availableH = Math.max(80, maxBottom - poolCenterY);
+        const stepRy = total > 1 ? Math.min(34, Math.max(16, (availableH - innerRy) / (total - 1))) : 0;
+
+        wishRingSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+        for (let i = 0; i < wishChips.length; i++) {
+          const rx = innerRx + i * stepRx;
+          const ry = innerRy + i * stepRy;
+          // Cung cong phía dưới đồng tâm đứng yên 1 chỗ, uốn cong đều theo hình tròn/elip thuận chiều đọc
+          const d = `M ${(cx - rx).toFixed(1)},${poolCenterY.toFixed(1)} A ${rx.toFixed(1)},${ry.toFixed(1)} 0 0,0 ${(cx + rx).toFixed(1)},${poolCenterY.toFixed(1)}`;
+          wishChips[i].pathEl.setAttribute("d", d);
+        }
+      }
+
+      function rebuildOrbitWishes() {
+        wishRingDefs.innerHTML = "";
+        wishCurvedGroup.innerHTML = "";
+        wishChips.length = 0;
+        const svgNS = "http://www.w3.org/2000/svg";
+        const total = allWishes.length || 1;
+
+        allWishes.forEach((text, idx) => {
+          const pathId = `wishConcentricArc-${idx}`;
+          const pathEl = document.createElementNS(svgNS, "path");
+          pathEl.setAttribute("id", pathId);
+          pathEl.setAttribute("fill", "none");
+          wishRingDefs.appendChild(pathEl);
+
+          const textEl = document.createElementNS(svgNS, "text");
+          textEl.setAttribute("class", "wish-curved-item");
+          textEl.setAttribute("text-anchor", "middle");
+          // Bên trong chữ bé (10px) -> từ từ ra ngoài chữ lớn hơn xíu (15.5px)
+          const ringRatio = total > 1 ? idx / (total - 1) : 1;
+          const fontSize = 10.0 + ringRatio * 5.5;
+          textEl.style.fontSize = `${fontSize.toFixed(1)}px`;
+
+          const textPath = document.createElementNS(svgNS, "textPath");
+          textPath.setAttribute("href", `#${pathId}`);
+          textPath.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `#${pathId}`);
+          const preview = text.length > 44 ? `${text.slice(0, 44)}...` : text;
+          textPath.textContent = `✦ ${preview} ✦`;
+
+          textEl.appendChild(textPath);
+          textEl.addEventListener("mouseenter", () => {
+            isOrbitHovered = true;
+          });
+          textEl.addEventListener("mouseleave", () => {
+            isOrbitHovered = false;
+          });
+          textEl.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openWishReader(idx);
+          });
+
+          wishCurvedGroup.appendChild(textEl);
+          wishChips.push({ pathEl, textEl, textPath });
+        });
+
+        updateConcentricRingPaths();
+      }
+      rebuildOrbitWishes();
+      window.addEventListener("resize", updateConcentricRingPaths);
+
+      // =========================================================
+      // 7. 3 QUẢ CẦU ẢNH 3D (1 TO VỪA, 1 CỠ VỪA, 1 CỠ BÉ) + NHẬT KÝ ẢNH
+      // =========================================================
+      const squareTileCanvases = [];
+      let globesVisible = true;
+      let currentDiaryIdx = 0;
+
+      function buildSquareTile(img) {
+        const size = 128;
+        const c = document.createElement("canvas");
+        c.width = size;
+        c.height = size;
+        const tctx = c.getContext("2d");
+        const aspect = img.naturalWidth / (img.naturalHeight || 1);
+        let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+        if (aspect > 1) {
+          sw = img.naturalHeight;
+          sx = (img.naturalWidth - sw) / 2;
+        } else {
+          sh = img.naturalWidth;
+          sy = (img.naturalHeight - sh) / 2;
+        }
+        tctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+        return c;
+      }
+
+      function syncPhotoTiles() {
+        while (squareTileCanvases.length < loadedImages.length) {
+          squareTileCanvases.push(buildSquareTile(loadedImages[squareTileCanvases.length]));
+        }
+      }
+
+      function renderDiaryViewer() {
+        if (loadedImages.length === 0) return;
+        currentDiaryIdx = ((currentDiaryIdx % loadedImages.length) + loadedImages.length) % loadedImages.length;
+        diaryMainImg.src = loadedImages[currentDiaryIdx].src;
+        diaryCaption.textContent = `Khoảnh khắc ${currentDiaryIdx + 1} / ${loadedImages.length}`;
+
+        const thumbs = diaryThumbs.querySelectorAll(".photo-diary-thumb");
+        thumbs.forEach((el, idx) => {
+          el.classList.toggle("active", idx === currentDiaryIdx);
+        });
+      }
+
+      function openPhotoDiary(startIdx = 0) {
+        if (loadedImages.length === 0) return;
+        currentDiaryIdx = startIdx;
+        diaryThumbs.innerHTML = "";
+        loadedImages.forEach((img, idx) => {
+          const thumb = document.createElement("img");
+          thumb.src = img.src;
+          thumb.alt = `Ảnh ${idx + 1}`;
+          thumb.className = "photo-diary-thumb" + (idx === currentDiaryIdx ? " active" : "");
+          thumb.addEventListener("click", () => {
+            currentDiaryIdx = idx;
+            renderDiaryViewer();
+          });
+          diaryThumbs.appendChild(thumb);
+        });
+        renderDiaryViewer();
+        photoDiaryModal.classList.add("open");
+      }
+
+      closePhotoDiaryBtn.addEventListener("click", () => {
+        photoDiaryModal.classList.remove("open");
+      });
+      photoDiaryModal.addEventListener("click", (e) => {
+        if (e.target === photoDiaryModal) {
+          photoDiaryModal.classList.remove("open");
+        }
+      });
+      prevPhotoBtn.addEventListener("click", () => {
+        currentDiaryIdx--;
+        renderDiaryViewer();
+      });
+      nextPhotoBtn.addEventListener("click", () => {
+        currentDiaryIdx++;
+        renderDiaryViewer();
+      });
+
+      // 3 quả cầu ảnh đứng xoay quanh 1 chỗ, tránh đè lên hình trái tim ở trung tâm
+      const photoGlobes = [
+        // 1. Quả cầu to vừa (bên trái)
+        {
+          id: "large",
+          getPos: (w, h) => {
+            const isNarrow = w < 720;
+            return {
+              x: isNarrow ? w * 0.17 : w * 0.16,
+              y: isNarrow ? h * 0.21 : h * 0.43,
+              r: Math.min(w, h) * (isNarrow ? 0.115 : 0.155)
+            };
+          },
+          rotX: 0.18,
+          rotY: 0.4,
+          velX: 0,
+          velY: 0.34,
+          autoSpeedY: 0.34,
+          latBands: 6,
+          lonBands: 12,
+          glow: "rgba(244, 114, 182, 0.35)"
+        },
+        // 2. Quả cầu cỡ vừa (bên phải trên)
+        {
+          id: "medium",
+          getPos: (w, h) => {
+            const isNarrow = w < 720;
+            return {
+              x: isNarrow ? w * 0.83 : w * 0.84,
+              y: isNarrow ? h * 0.22 : h * 0.33,
+              r: Math.min(w, h) * (isNarrow ? 0.085 : 0.112)
+            };
+          },
+          rotX: -0.14,
+          rotY: 1.6,
+          velX: 0,
+          velY: -0.40,
+          autoSpeedY: -0.40,
+          latBands: 5,
+          lonBands: 10,
+          glow: "rgba(56, 189, 248, 0.35)"
+        },
+        // 3. Quả cầu cỡ bé (góc dưới phải)
+        {
+          id: "small",
+          getPos: (w, h) => {
+            const isNarrow = w < 720;
+            return {
+              x: isNarrow ? w * 0.84 : w * 0.82,
+              y: isNarrow ? h * 0.72 : h * 0.66,
+              r: Math.min(w, h) * (isNarrow ? 0.058 : 0.072)
+            };
+          },
+          rotX: 0.22,
+          rotY: 2.8,
+          velX: 0,
+          velY: 0.52,
+          autoSpeedY: 0.52,
+          latBands: 4,
+          lonBands: 8,
+          glow: "rgba(192, 132, 252, 0.35)"
+        }
+      ];
+
+      // Kéo xoay từng quả cầu hoặc click để mở Nhật ký ảnh
+      let activeGlobeDrag = null;
+
+      function hitTestGlobe(px, py) {
+        if (!globesVisible) return null;
+        for (let i = 0; i < photoGlobes.length; i++) {
+          const g = photoGlobes[i];
+          const pos = g.getPos(width, height);
+          const dist = Math.hypot(px - pos.x, py - pos.y);
+          if (dist <= pos.r * 1.12) {
+            return g;
+          }
+        }
+        return null;
+      }
+
+      canvas.addEventListener("pointerdown", (e) => {
+        if (!gateOpened) return;
+        const g = hitTestGlobe(e.clientX, e.clientY);
+        if (!g) return;
+        activeGlobeDrag = {
+          globe: g,
+          startX: e.clientX,
+          startY: e.clientY,
+          lastX: e.clientX,
+          lastY: e.clientY,
+          moved: 0
+        };
+        canvas.setPointerCapture(e.pointerId);
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (activeGlobeDrag) {
+          const dx = e.clientX - activeGlobeDrag.lastX;
+          const dy = e.clientY - activeGlobeDrag.lastY;
+          activeGlobeDrag.moved += Math.hypot(dx, dy);
+          activeGlobeDrag.globe.rotY += dx * 0.011;
+          activeGlobeDrag.globe.rotX = Math.max(-1.15, Math.min(1.15, activeGlobeDrag.globe.rotX + dy * 0.011));
+          activeGlobeDrag.globe.velY = dx * 0.06;
+          activeGlobeDrag.globe.velX = dy * 0.04;
+          activeGlobeDrag.lastX = e.clientX;
+          activeGlobeDrag.lastY = e.clientY;
+          canvas.style.cursor = "grabbing";
+        } else if (gateOpened && hitTestGlobe(e.clientX, e.clientY)) {
+          canvas.style.cursor = "grab";
+        } else {
+          canvas.style.cursor = "default";
+        }
+      });
+
+      function endGlobePointer(e) {
+        if (!activeGlobeDrag) return;
+        const wasClick = activeGlobeDrag.moved < 7;
+        activeGlobeDrag = null;
+        canvas.style.cursor = "default";
+        if (wasClick) {
+          openPhotoDiary(0);
+        }
+      }
+      canvas.addEventListener("pointerup", endGlobePointer);
+      canvas.addEventListener("pointercancel", endGlobePointer);
+
+      function rotatePoint3D(x, y, z, rotX, rotY) {
+        const x1 = x * Math.cos(rotY) - z * Math.sin(rotY);
+        const z1 = x * Math.sin(rotY) + z * Math.cos(rotY);
+        const y2 = y * Math.cos(rotX) - z1 * Math.sin(rotX);
+        const z2 = y * Math.sin(rotX) + z1 * Math.cos(rotX);
+        return { x: x1, y: y2, z: z2 };
+      }
+
+      function drawTexturedTriangle(img, sx0, sy0, sx1, sy1, sx2, sy2, x0, y0, x1, y1, x2, y2) {
+        const denom = (sx0 - sx2) * (sy1 - sy2) - (sx1 - sx2) * (sy0 - sy2);
+        if (Math.abs(denom) < 0.0001) return;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.closePath();
+        ctx.clip();
+
+        const m11 = ((x0 - x2) * (sy1 - sy2) - (x1 - x2) * (sy0 - sy2)) / denom;
+        const m12 = ((x1 - x2) * (sx0 - sx2) - (x0 - x2) * (sx1 - sx2)) / denom;
+        const m21 = ((y0 - y2) * (sy1 - sy2) - (y1 - y2) * (sy0 - sy2)) / denom;
+        const m22 = ((y1 - y2) * (sx0 - sx2) - (y0 - y2) * (sx1 - sx2)) / denom;
+        const dx = x2 - m11 * sx2 - m12 * sy2;
+        const dy = y2 - m21 * sx2 - m22 * sy2;
+
+        ctx.transform(m11, m21, m12, m22, dx, dy);
+        ctx.drawImage(img, 0, 0);
+        ctx.restore();
+      }
+
+      function drawPhotoGlobes(dt) {
+        if (!globesVisible) return;
+        syncPhotoTiles();
+        if (squareTileCanvases.length === 0) return;
+
+        const fov = 3.2;
+
+        for (let gIdx = 0; gIdx < photoGlobes.length; gIdx++) {
+          const g = photoGlobes[gIdx];
+          const isBeingDragged = activeGlobeDrag && activeGlobeDrag.globe === g;
+
+          if (!isBeingDragged) {
+            g.rotY += g.velY * dt;
+            g.rotX += g.velX * dt;
+            // Hồi mượt về tốc độ tự xoay nhẹ của quả cầu
+            g.velY += (g.autoSpeedY - g.velY) * Math.min(1, dt * 2.5);
+            g.velX *= Math.pow(0.05, dt);
+          }
+
+          const pos = g.getPos(width, height);
+          const R = pos.r;
+          const tiles = [];
+
+          // Hào quang nhẹ phía sau quả cầu
+          ctx.save();
+          const aura = ctx.createRadialGradient(pos.x, pos.y, R * 0.4, pos.x, pos.y, R * 1.4);
+          aura.addColorStop(0, g.glow);
+          aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = aura;
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, R * 1.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          for (let lat = 0; lat < g.latBands; lat++) {
+            const phi0 = -Math.PI * 0.44 + (lat / g.latBands) * (Math.PI * 0.88);
+            const phi1 = -Math.PI * 0.44 + ((lat + 1) / g.latBands) * (Math.PI * 0.88);
+
+            for (let lon = 0; lon < g.lonBands; lon++) {
+              const theta0 = (lon / g.lonBands) * Math.PI * 2;
+              const theta1 = ((lon + 1) / g.lonBands) * Math.PI * 2;
+
+              const midPhi = (phi0 + phi1) * 0.5;
+              const midTheta = (theta0 + theta1) * 0.5;
+              const nrm = rotatePoint3D(
+                Math.cos(midPhi) * Math.cos(midTheta),
+                Math.sin(midPhi),
+                Math.cos(midPhi) * Math.sin(midTheta),
+                g.rotX,
+                g.rotY
+              );
+
+              // Chỉ vẽ mặt trước hướng về người xem
+              if (nrm.z > 0.12) continue;
+
+              const pts = [
+                [phi0, theta0],
+                [phi0, theta1],
+                [phi1, theta1],
+                [phi1, theta0]
+              ].map(([ph, th]) => {
+                const p3 = rotatePoint3D(
+                  Math.cos(ph) * Math.cos(th),
+                  Math.sin(ph),
+                  Math.cos(ph) * Math.sin(th),
+                  g.rotX,
+                  g.rotY
+                );
+                const persp = fov / (fov + p3.z);
+                return {
+                  x: pos.x + p3.x * R * persp,
+                  y: pos.y + p3.y * R * persp,
+                  z: p3.z
+                };
+              });
+
+              const tileIdx = (lat * g.lonBands + lon + gIdx * 2) % squareTileCanvases.length;
+              tiles.push({ pts, z: nrm.z, tile: squareTileCanvases[tileIdx] });
+            }
+          }
+
+          tiles.sort((a, b) => b.z - a.z);
+
+          for (let tIdx = 0; tIdx < tiles.length; tIdx++) {
+            const t = tiles[tIdx];
+            const [p0, p1, p2, p3] = t.pts;
+            const s = t.tile.width;
+
+            // Khe hở sáng hồng/trắng mỏng giữa các ô ảnh giống ảnh mẫu
+            ctx.save();
+            ctx.strokeStyle = "rgba(252, 231, 243, 0.55)";
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+
+            drawTexturedTriangle(t.tile, 0, 0, s, 0, s, s, p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
+            drawTexturedTriangle(t.tile, 0, 0, s, s, 0, s, p0.x, p0.y, p2.x, p2.y, p3.x, p3.y);
+          }
+
+          // Phủ lớp bóng khối cầu 3D giúp quả cầu tròn nổi khối tự nhiên
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, R * 1.03, 0, Math.PI * 2);
+          ctx.clip();
+          const shade = ctx.createRadialGradient(
+            pos.x - R * 0.35, pos.y - R * 0.35, R * 0.2,
+            pos.x, pos.y, R * 1.06
+          );
+          shade.addColorStop(0, "rgba(255, 255, 255, 0.14)");
+          shade.addColorStop(0.62, "rgba(0, 0, 0, 0)");
+          shade.addColorStop(1, "rgba(2, 6, 23, 0.55)");
+          ctx.fillStyle = shade;
+          ctx.fillRect(pos.x - R * 1.1, pos.y - R * 1.1, R * 2.2, R * 2.2);
+          ctx.restore();
+        }
+      }
+
+      addWishBtn.addEventListener("click", () => {
+        const val = wishInput.value.trim();
+        if (!val) return;
+        customWishes.push(val);
+        allWishes.push(val);
+        rebuildOrbitWishes();
+        wishInput.value = "";
+        wishInput.focus();
+      });
+
+      wishInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          addWishBtn.click();
+        }
+      });
+
+      toggleRainBtn.addEventListener("click", () => {
+        globesVisible = !globesVisible;
+        toggleRainBtn.textContent = globesVisible ? "Ẩn cầu ảnh" : "Hiện cầu ảnh";
+      });
+
+      // =========================================================
+      // HÀM VẼ PHỤ TRỢ
+      // =========================================================
+      function drawSparkleCross(x, y, radius, alpha, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.quadraticCurveTo(0, 0, 0, radius);
+        ctx.quadraticCurveTo(0, 0, -radius, 0);
+        ctx.quadraticCurveTo(0, 0, 0, -radius);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawRoundedImageCard(item, drawX, edgeFade, elapsed) {
+        const w = item.width;
+        const h = item.height;
+        const r = 12;
+        const img = item.img;
+
+        ctx.save();
+        ctx.translate(drawX, item.y);
+        ctx.rotate(item.tilt + Math.sin(elapsed * 0.9 + item.phase) * 0.04);
+        ctx.globalAlpha = item.alpha * edgeFade;
+
+        ctx.shadowColor = item.glow;
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = "rgba(15, 23, 42, 0.55)";
+        ctx.beginPath();
+        ctx.roundRect(-w / 2, -h / 2, w, h, r);
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(-w / 2, -h / 2, w, h, r);
+        ctx.clip();
+        ctx.shadowBlur = 0;
+
+        const imgAspect = img.naturalWidth / (img.naturalHeight || 1);
+        const cardAspect = w / h;
+        let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+        if (imgAspect > cardAspect) {
+          sw = img.naturalHeight * cardAspect;
+          sx = (img.naturalWidth - sw) / 2;
+        } else {
+          sh = img.naturalWidth / cardAspect;
+          sy = (img.naturalHeight - sh) / 2;
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, -w / 2, -h / 2, w, h);
+        ctx.restore();
+
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 1.4;
+        ctx.strokeStyle = "rgba(224, 242, 254, 0.72)";
+        ctx.beginPath();
+        ctx.roundRect(-w / 2, -h / 2, w, h, r);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // =========================================================
+      // VÒNG LẶP ANIMATION CHÍNH
+      // =========================================================
+      let lastTime = performance.now();
+      let elapsed = 0;
+
+      function render(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+        elapsed += dt;
+
+        // 1. Vẽ nền vũ trụ loang màu, dải ngân hà & cầu vồng chân trời từ offscreen canvas
+        ctx.drawImage(bgCanvas, 0, 0, width, height);
+        drawSpiralGalaxies(elapsed);
+
+        // 2. Vẽ các hành tinh to/nhỏ, tàu vũ trụ và pháo hoa nền nhiều màu
+        drawPlanets(elapsed);
+        drawSpaceships(dt, elapsed);
+        drawBackgroundFireworks(dt, elapsed);
+
+        const cx = width * 0.5;
+        const cy = height * 0.37;
+        const beat = getHeartbeatScale(elapsed);
+
+        // Vầng hào quang đỏ hồng ấm áp phía sau trái tim
+        const auraRadius = Math.min(width, height) * 0.48 * beat;
+        const bgGlow = ctx.createRadialGradient(cx, cy, 12, cx, cy, auraRadius);
+        bgGlow.addColorStop(0, "rgba(244, 63, 94, 0.28)");
+        bgGlow.addColorStop(0.45, "rgba(225, 29, 72, 0.14)");
+        bgGlow.addColorStop(0.75, "rgba(168, 85, 247, 0.06)");
+        bgGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = bgGlow;
+        ctx.fillRect(0, 0, width, height);
+
+        // 3. Vẽ ánh sao lấp lánh to nhỏ màu trắng & tím
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          s.x += s.driftX * dt;
+          s.y += s.driftY * dt;
+          if (s.x < 0) s.x = width;
+          if (s.x > width) s.x = 0;
+          if (s.y < 0) s.y = height;
+          if (s.y > height) s.y = 0;
+
+          const twinkle = 0.5 + 0.5 * Math.sin(elapsed * s.twinkleSpeed + s.phase);
+          const alpha = s.baseAlpha * (0.35 + 0.65 * twinkle);
+
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = s.color;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (s.hasCross && twinkle > 0.65) {
+            drawSparkleCross(s.x, s.y, s.r * 3.6, alpha * 0.9, s.color);
+          }
+        }
+        ctx.globalAlpha = 1;
+
+        // 4. Vẽ sao băng màu trắng vụt qua
+        nextShootingStarTime -= dt;
+        if (nextShootingStarTime <= 0) {
+          spawnShootingStar();
+          nextShootingStarTime = 1.4 + Math.random() * 2.2;
+        }
+
+        for (let i = shootingStars.length - 1; i >= 0; i--) {
+          const st = shootingStars[i];
+          st.life += dt;
+          st.x += st.vx * dt;
+          st.y += st.vy * dt;
+
+          const progress = st.life / st.maxLife;
+          if (progress >= 1) {
+            shootingStars.splice(i, 1);
+            continue;
+          }
+
+          const fade = progress < 0.2 ? progress / 0.2 : 1 - (progress - 0.2) / 0.8;
+          const speedLen = Math.hypot(st.vx, st.vy) || 1;
+          const tailX = st.x - (st.vx / speedLen) * st.length;
+          const tailY = st.y - (st.vy / speedLen) * st.length;
+
+          const grad = ctx.createLinearGradient(st.x, st.y, tailX, tailY);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${0.98 * fade})`);
+          grad.addColorStop(0.35, `rgba(224, 242, 254, ${0.58 * fade})`);
+          grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+          ctx.save();
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = st.thickness;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(st.x, st.y);
+          ctx.lineTo(tailX, tailY);
+          ctx.stroke();
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${fade})`;
+          ctx.shadowColor = "#ffffff";
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(st.x, st.y, st.thickness * 1.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 5. VẼ VÒNG NGÂN HÀ XANH BÊN DƯỚI + ĐỐM XANH DƯƠNG ĐẬM XOAY QUANH + TRÁI TIM ĐỎ XOAY & ĐẬP NHỊP
+        const baseScale = Math.min(width, height) * 0.255;
+        const heartScale = baseScale * beat;
+        const poolCenterY = cy + baseScale * 1.48;
+        const fov = 4.3;
+
+        // 5a. Vẽ vòng ngân hà mảnh vụn xanh bên dưới (chỉ xoay vòng, khoảng trống ở giữa, loang dần ra ngoài)
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 0; i < blueDebrisPool.length; i++) {
+          const d = blueDebrisPool[i];
+          const curAng = d.ang + elapsed * d.orbitSpeed;
+          const dx = cx + Math.cos(curAng) * d.rad * baseScale * 1.55;
+          const dy = poolCenterY + Math.sin(curAng) * d.rad * baseScale * 0.22;
+          const twinkle = 0.5 + 0.5 * Math.sin(elapsed * d.speed + d.phase);
+          const outerFade = Math.max(0.18, 1 - Math.max(0, d.rad - 1.35) * 0.85);
+          ctx.globalAlpha = Math.min(1, (0.35 + 0.55 * twinkle) * outerFade);
+          ctx.fillStyle = d.color;
+          ctx.beginPath();
+          ctx.arc(dx, dy, d.size * (0.85 + 0.35 * twinkle), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // 5b. Vẽ các đốm nhỏ ở vùng trong bay lên lấp vào hình trái tim (xanh -> trắng -> đỏ)
+        const BLUE_RGB = [56, 189, 248];
+        const WHITE_RGB = [255, 255, 255];
+        const RED_RGB = [244, 63, 94];
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 0; i < flowParticles.length; i++) {
+          const fp = flowParticles[i];
+          fp.progress += fp.speed * dt;
+          if (fp.progress >= 1) {
+            initFlowParticle(fp, false);
+          }
+
+          const t = fp.progress;
+          const startX = cx + fp.poolX * baseScale;
+          const startY = poolCenterY + fp.poolY * baseScale;
+          const endX = cx + fp.heartX * heartScale;
+          const endY = cy + fp.heartY * heartScale;
+
+          let fx, fy, color;
+          if (fp.mode === "rise") {
+            const ease = t * t * (3 - 2 * t);
+            fx = startX + (endX - startX) * ease + Math.sin(t * Math.PI) * fp.swirlAmp * baseScale;
+            fy = startY + (endY - startY) * ease;
+            color = t < 0.5
+              ? lerpColorRGB(BLUE_RGB, WHITE_RGB, t * 2)
+              : lerpColorRGB(WHITE_RGB, RED_RGB, (t - 0.5) * 2);
+          } else {
+            const ease = t * t;
+            fx = endX + (startX - endX) * ease + Math.sin(t * Math.PI) * fp.swirlAmp * baseScale;
+            fy = endY + (startY - endY) * ease;
+            color = t < 0.45
+              ? lerpColorRGB(RED_RGB, WHITE_RGB, t / 0.45)
+              : lerpColorRGB(WHITE_RGB, BLUE_RGB, (t - 0.45) / 0.55);
+          }
+
+          const alpha = Math.sin(t * Math.PI) * 0.92;
+          ctx.globalAlpha = Math.max(0.1, alpha);
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(fx, fy, fp.size * (0.8 + 0.35 * Math.sin(t * Math.PI)), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // 5c. Chiếu các hạt trái tim đỏ (xoay vòng quanh trục Y & đập từng nhịp)
+        const rotY = elapsed * 0.85;
+        const cosY = Math.cos(rotY);
+        const sinY = Math.sin(rotY);
+
+        const projected = [];
+        for (let i = 0; i < heartParticles.length; i++) {
+          const p = heartParticles[i];
+          const rx = p.x * cosY - p.z * sinY;
+          const rz = p.x * sinY + p.z * cosY;
+          const perspective = fov / Math.max(0.9, fov + rz);
+          const sx = cx + rx * heartScale * perspective;
+          const sy = cy + p.y * heartScale * perspective;
+          projected.push({ sx, sy, rz, perspective, p });
+        }
+
+        projected.sort((a, b) => b.rz - a.rz);
+
+        const beatGlowBoost = (beat - 1) * 4.8;
+
+        // Pass 1: Chấm đỏ đậm tạo khối trái tim dày mịn
+        ctx.save();
+        ctx.globalCompositeOperation = "source-over";
+        for (let i = 0; i < projected.length; i++) {
+          const item = projected[i];
+          const p = item.p;
+          if (!p.isDeep) continue;
+          const pulse = 0.78 + 0.22 * Math.sin(elapsed * p.sparkleSpeed * 0.6 + p.phase);
+          const depthAlpha = Math.max(0.42, Math.min(0.95, (1.55 - item.rz) * 0.62));
+          const radius = p.size * item.perspective * (0.95 + 0.16 * pulse);
+
+          ctx.globalAlpha = Math.min(0.96, depthAlpha * pulse + beatGlowBoost * 0.15);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(item.sx, item.sy, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Pass 2: Hạt đỏ sáng rực & ánh lấp lánh
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 0; i < projected.length; i++) {
+          const item = projected[i];
+          const p = item.p;
+          if (p.isDeep) continue;
+          const sparkle = 0.5 + 0.5 * Math.sin(elapsed * p.sparkleSpeed + p.phase);
+          const depthAlpha = Math.max(0.32, Math.min(1, (1.55 - item.rz) * 0.62));
+          const alpha = Math.min(0.95, depthAlpha * (0.55 + 0.45 * sparkle) + beatGlowBoost * 0.22);
+          const radius = p.size * item.perspective * (0.92 + 0.32 * sparkle);
+
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(item.sx, item.sy, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (p.isGlitter && sparkle > 0.78) {
+            drawSparkleCross(item.sx, item.sy, radius * 3.2, alpha, "#ffe4e6");
+          }
+        }
+        ctx.restore();
+
+        // 6. Vẽ các ngôi sao băng màu xanh bay xung quanh vòng tròn hình trái tim
+        drawOrbitBlueMeteors(dt, cx, cy, heartScale);
+
+        // 6b. Các vòng câu chúc đứng yên đồng tâm cách nhau ~1cm, chữ tự cuộn vòng tròn xen kẽ chiều
+        if (!isOrbitHovered && !wishReaderModal.classList.contains("open")) {
+          wishOrbitAngle += dt * 0.14;
+        }
+        for (let i = 0; i < wishChips.length; i++) {
+          // Câu 1 cuộn từ phải sang trái, câu 2 ngược lại từ trái sang phải, câu 3 ngược lại câu 2...
+          const dir = i % 2 === 0 ? -1 : 1;
+          const phase = (i * 0.17) % 1;
+          let progress = (wishOrbitAngle * dir + phase) % 1;
+          if (progress < 0) progress += 1;
+
+          // Chạy mượt qua cung tròn từ 14% -> 86% (luôn thuận chiều đọc, không bay loạn xoạn)
+          const startPct = 14 + progress * 72;
+          const fade = Math.sin(progress * Math.PI);
+          const item = wishChips[i];
+          item.textPath.setAttribute("startOffset", `${startPct.toFixed(2)}%`);
+          item.textEl.style.opacity = Math.max(0.25, Math.min(1, fade * 1.4)).toFixed(2);
+        }
+
+        // 7. Vẽ 3 quả cầu ảnh 3D (1 to vừa, 1 cỡ vừa, 1 cỡ bé)
+        drawPhotoGlobes(dt);
+
+        requestAnimationFrame(render);
+      }
+
+      let gateOpened = false;
+      openGateBtn.addEventListener("click", () => {
+        if (gateOpened) return;
+        gateOpened = true;
+        tryAutoPlay();
+        gateOverlay.classList.add("open");
+        // Bắt đầu lại chu kỳ trái tim ngay khi mở cổng
+        elapsed = 0;
+      });
+
+      requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>
