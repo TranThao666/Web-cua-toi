@@ -2,18 +2,20 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Trái Tim Xanh Lấp Lánh &amp; Vũ Trụ Ngân Hà</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
       background: #03020c;
       font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
@@ -27,6 +29,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
+      touch-action: none;
     }
 
     /* Giao diện điều khiển nhỏ gọn, tinh tế */
@@ -212,6 +215,20 @@
     @keyframes cupidFloat {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 520px) {
+      .gate-center-stage {
+        gap: 6px;
+        padding: 0 8px;
+      }
+      .cupid-wrap {
+        width: 88px;
+      }
+      .heart-gate-btn {
+        width: 106px;
+        height: 98px;
+      }
     }
 
     .heart-gate-btn {
