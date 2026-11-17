@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=1280" />
   <title>Trái Tim Xanh Lấp Lánh &amp; Vũ Trụ Ngân Hà</title>
   <style>
     * {
@@ -109,19 +109,6 @@
       border-color: rgba(255, 255, 255, 0.18);
     }
 
-    @media (max-width: 640px) {
-      .controls {
-        flex-wrap: wrap;
-        justify-content: center;
-        border-radius: 18px;
-        padding: 8px 10px;
-      }
-      .controls input {
-        width: 100%;
-        min-width: 0;
-      }
-    }
-
     /* =========================================================
        MÀN HÌNH CÁNH CỬA CHIA ĐÔI + 2 THIÊN THẦN + TRÁI TIM GIỮA
        ========================================================= */
@@ -215,20 +202,6 @@
     @keyframes cupidFloat {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-10px); }
-    }
-
-    @media (max-width: 520px) {
-      .gate-center-stage {
-        gap: 6px;
-        padding: 0 8px;
-      }
-      .cupid-wrap {
-        width: 88px;
-      }
-      .heart-gate-btn {
-        width: 106px;
-        height: 98px;
-      }
     }
 
     .heart-gate-btn {
@@ -1729,7 +1702,7 @@
       function updateConcentricRingPaths() {
         const cx = width * 0.5;
         const cy = height * 0.37;
-        const baseScale = Math.min(width, height) * 0.255;
+        const baseScale = Math.min(width * 0.145, height * 0.255);
         const poolCenterY = cy + baseScale * 1.44;
         const total = wishChips.length || 1;
 
@@ -1882,19 +1855,16 @@
         renderDiaryViewer();
       });
 
-      // 3 quả cầu ảnh đứng xoay quanh 1 chỗ, tránh đè lên hình trái tim ở trung tâm
+      // 3 quả cầu ảnh đứng xoay quanh 1 chỗ, bố cục đồng nhất như trên máy tính
       const photoGlobes = [
         // 1. Quả cầu to vừa (bên trái)
         {
           id: "large",
-          getPos: (w, h) => {
-            const isNarrow = w < 720;
-            return {
-              x: isNarrow ? w * 0.17 : w * 0.16,
-              y: isNarrow ? h * 0.21 : h * 0.43,
-              r: Math.min(w, h) * (isNarrow ? 0.115 : 0.155)
-            };
-          },
+          getPos: (w, h) => ({
+            x: w * 0.16,
+            y: h * 0.43,
+            r: Math.min(w * 0.088, h * 0.155)
+          }),
           rotX: 0.18,
           rotY: 0.4,
           velX: 0,
@@ -1907,14 +1877,11 @@
         // 2. Quả cầu cỡ vừa (bên phải trên)
         {
           id: "medium",
-          getPos: (w, h) => {
-            const isNarrow = w < 720;
-            return {
-              x: isNarrow ? w * 0.83 : w * 0.84,
-              y: isNarrow ? h * 0.22 : h * 0.33,
-              r: Math.min(w, h) * (isNarrow ? 0.085 : 0.112)
-            };
-          },
+          getPos: (w, h) => ({
+            x: w * 0.84,
+            y: h * 0.33,
+            r: Math.min(w * 0.064, h * 0.112)
+          }),
           rotX: -0.14,
           rotY: 1.6,
           velX: 0,
@@ -1927,14 +1894,11 @@
         // 3. Quả cầu cỡ bé (góc dưới phải)
         {
           id: "small",
-          getPos: (w, h) => {
-            const isNarrow = w < 720;
-            return {
-              x: isNarrow ? w * 0.84 : w * 0.82,
-              y: isNarrow ? h * 0.72 : h * 0.66,
-              r: Math.min(w, h) * (isNarrow ? 0.058 : 0.072)
-            };
-          },
+          getPos: (w, h) => ({
+            x: w * 0.82,
+            y: h * 0.66,
+            r: Math.min(w * 0.042, h * 0.072)
+          }),
           rotX: 0.22,
           rotY: 2.8,
           velX: 0,
@@ -2358,7 +2322,7 @@
         }
 
         // 5. VẼ VÒNG NGÂN HÀ XANH BÊN DƯỚI + ĐỐM XANH DƯƠNG ĐẬM XOAY QUANH + TRÁI TIM ĐỎ XOAY & ĐẬP NHỊP
-        const baseScale = Math.min(width, height) * 0.255;
+        const baseScale = Math.min(width * 0.145, height * 0.255);
         const heartScale = baseScale * beat;
         const poolCenterY = cy + baseScale * 1.48;
         const fov = 4.3;
